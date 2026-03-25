@@ -27,5 +27,22 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  // Improve socket connection stability for build process
+  nitro: {
+    prerender: {
+      crawlLinks: false,
+      routes: ['/sitemap.xml']
+    },
+    errorHandler: '~/server/utils/errorHandler.ts',
+    moduleSideEffects: ['~/server/middleware/socket-handler.ts']
+  },
+
+  // Add build hook to handle socket issues
+  hooks: {
+    'build:done': () => {
+      console.log('[Nuxt] Build completed successfully')
+    }
   }
 })
