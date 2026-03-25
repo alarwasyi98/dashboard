@@ -1,158 +1,229 @@
 <script setup lang="ts">
-import * as z from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
+import { useColorMode } from '@vueuse/core'
 
-const fileRef = ref<HTMLInputElement>()
-
-const profileSchema = z.object({
-  name: z.string().min(2, 'Too short'),
-  email: z.string().email('Invalid email'),
-  username: z.string().min(2, 'Too short'),
-  avatar: z.string().optional(),
-  bio: z.string().optional()
-})
-
-type ProfileSchema = z.output<typeof profileSchema>
-
-const profile = reactive<Partial<ProfileSchema>>({
-  name: 'Benjamin Canac',
-  email: 'ben@nuxtlabs.com',
-  username: 'benjamincanac',
-  avatar: undefined,
-  bio: undefined
-})
+const { isNotificationsSlideoverOpen } = useDashboard()
+const colorMode = useColorMode()
 const toast = useToast()
-async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
-  toast.add({
-    title: 'Success',
-    description: 'Your settings have been updated.',
-    icon: 'i-lucide-check',
-    color: 'success'
-  })
-  console.log(event.data)
+
+const settings = ref({
+  currency: 'USD',
+  theme: colorMode.preference as 'light' | 'dark' | 'system',
+  notifications: true,
+  notificationFrequency: 'weekly',
+  emailDigest: true,
+  budgetAlerts: true,
+  billingReminders: true
+})
+
+const currencyOptions = [
+  { label: 'USD - US Dollar', value: 'USD' },
+  { label: 'EUR - Euro', value: 'EUR' },
+  { label: 'GBP - British Pound', value: 'GBP' },
+  { label: 'JPY - Japanese Yen', value: 'JPY' },
+  { label: 'CAD - Canadian Dollar', value: 'CAD' }
+]
+
+const themeOptions = [
+  { label: 'Light', value: 'light' },
+  { label: 'Dark', value: 'dark' },
+  { label: 'System', value: 'system' }
+]
+
+const frequencyOptions = [
+  { label: 'Daily', value: 'daily' },
+  { label: 'Weekly', value: 'weekly' },
+  { label: 'Monthly', value: 'monthly' }
+]
+
+const saveSettings = () => {
+  colorMode.preference = settings.value.theme as any
+  toast.add({ title: 'Settings saved successfully', color: 'green' })
 }
 
-function onFileChange(e: Event) {
-  const input = e.target as HTMLInputElement
-
-  if (!input.files?.length) {
-    return
+const resetSettings = () => {
+  settings.value = {
+    currency: 'USD',
+    theme: 'system',
+    notifications: true,
+    notificationFrequency: 'weekly',
+    emailDigest: true,
+    budgetAlerts: true,
+    billingReminders: true
   }
-
-  profile.avatar = URL.createObjectURL(input.files[0]!)
-}
-
-function onFileClick() {
-  fileRef.value?.click()
 }
 </script>
 
 <template>
-  <UForm
-    id="settings"
-    :schema="profileSchema"
-    :state="profile"
-    @submit="onSubmit"
-  >
-    <UPageCard
-      title="Profile"
-      description="These informations will be displayed publicly."
-      variant="naked"
-      orientation="horizontal"
-      class="mb-4"
-    >
-      <UButton
-        form="settings"
-        label="Save changes"
-        color="neutral"
-        type="submit"
-        class="w-fit lg:ms-auto"
-      />
-    </UPageCard>
+  <UDashboardPanel id="settings">
+    <template #header>
+      <UDashboardNavbar title="Settings" :ui="{ right: 'gap-3' }">
+        <template #leading>
+          <UDashboardSidebarCollapse />
+        </template>
 
-    <UPageCard variant="subtle">
-      <UFormField
-        name="name"
-        label="Name"
-        description="Will appear on receipts, invoices, and other communication."
-        required
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-      >
-        <UInput
-          v-model="profile.name"
-          autocomplete="off"
-        />
-      </UFormField>
-      <USeparator />
-      <UFormField
-        name="email"
-        label="Email"
-        description="Used to sign in, for email receipts and product updates."
-        required
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-      >
-        <UInput
-          v-model="profile.email"
-          type="email"
-          autocomplete="off"
-        />
-      </UFormField>
-      <USeparator />
-      <UFormField
-        name="username"
-        label="Username"
-        description="Your unique username for logging in and your profile URL."
-        required
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-      >
-        <UInput
-          v-model="profile.username"
-          type="username"
-          autocomplete="off"
-        />
-      </UFormField>
-      <USeparator />
-      <UFormField
-        name="avatar"
-        label="Avatar"
-        description="JPG, GIF or PNG. 1MB Max."
-        class="flex max-sm:flex-col justify-between sm:items-center gap-4"
-      >
-        <div class="flex flex-wrap items-center gap-3">
-          <UAvatar
-            :src="profile.avatar"
-            :alt="profile.name"
-            size="lg"
-          />
-          <UButton
-            label="Choose"
-            color="neutral"
-            @click="onFileClick"
-          />
-          <input
-            ref="fileRef"
-            type="file"
-            class="hidden"
-            accept=".jpg, .jpeg, .png, .gif"
-            @change="onFileChange"
-          >
+        <template #right>
+          <UTooltip text="Notifications" :shortcuts="['N']">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              square
+              @click="isNotificationsSlideoverOpen = true"
+            >
+              <UChip color="error" inset>
+                <UIcon name="i-lucide-bell" class="size-5 shrink-0" />
+              </UChip>
+            </UButton>
+          </UTooltip>
+        </template>
+      </UDashboardNavbar>
+    </template>
+
+    <template #body>
+      <div class="space-y-8 pb-8 max-w-3xl">
+        <!-- General Settings -->
+        <div>
+          <h3 class="text-lg font-bold mb-6">General Settings</h3>
+
+          <div class="space-y-6">
+            <UCard>
+              <template #header>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-globe" class="w-5 h-5" />
+                  <span class="font-semibold">Currency</span>
+                </div>
+              </template>
+              <UFormGroup label="Default Currency" :ui="{ container: 'mb-0' }">
+                <USelect v-model="settings.currency" :options="currencyOptions" />
+              </UFormGroup>
+              <template #footer>
+                <p class="text-xs text-muted">Used for displaying amounts throughout the app</p>
+              </template>
+            </UCard>
+
+            <UCard>
+              <template #header>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-palette" class="w-5 h-5" />
+                  <span class="font-semibold">Appearance</span>
+                </div>
+              </template>
+              <UFormGroup label="Theme" :ui="{ container: 'mb-0' }">
+                <USelect v-model="settings.theme" :options="themeOptions" />
+              </UFormGroup>
+              <template #footer>
+                <p class="text-xs text-muted">Choose your preferred color scheme</p>
+              </template>
+            </UCard>
+          </div>
         </div>
-      </UFormField>
-      <USeparator />
-      <UFormField
-        name="bio"
-        label="Bio"
-        description="Brief description for your profile. URLs are hyperlinked."
-        class="flex max-sm:flex-col justify-between items-start gap-4"
-        :ui="{ container: 'w-full' }"
-      >
-        <UTextarea
-          v-model="profile.bio"
-          :rows="5"
-          autoresize
-          class="w-full"
-        />
-      </UFormField>
-    </UPageCard>
-  </UForm>
+
+        <!-- Notification Settings -->
+        <div>
+          <h3 class="text-lg font-bold mb-6">Notifications</h3>
+
+          <div class="space-y-6">
+            <UCard>
+              <template #header>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-bell" class="w-5 h-5" />
+                  <span class="font-semibold">Push Notifications</span>
+                </div>
+              </template>
+              <div class="flex items-center justify-between">
+                <p class="text-sm">Enable notifications</p>
+                <UToggle v-model="settings.notifications" />
+              </div>
+              <template #footer>
+                <p class="text-xs text-muted">Receive alerts about transactions, subscriptions, and account activities</p>
+              </template>
+            </UCard>
+
+            <UCard v-if="settings.notifications">
+              <template #header>
+                <span class="font-semibold">Notification Frequency</span>
+              </template>
+              <UFormGroup label="How often to receive updates" :ui="{ container: 'mb-0' }">
+                <USelect v-model="settings.notificationFrequency" :options="frequencyOptions" />
+              </UFormGroup>
+              <template #footer>
+                <p class="text-xs text-muted">Choose how frequently you want to receive notifications</p>
+              </template>
+            </UCard>
+
+            <UCard>
+              <template #header>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-mail" class="w-5 h-5" />
+                  <span class="font-semibold">Email Digest</span>
+                </div>
+              </template>
+              <div class="flex items-center justify-between">
+                <p class="text-sm">Send weekly email digest</p>
+                <UToggle v-model="settings.emailDigest" />
+              </div>
+              <template #footer>
+                <p class="text-xs text-muted">Get a summary of your financial activity each week</p>
+              </template>
+            </UCard>
+
+            <UCard>
+              <template #header>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-alert-circle" class="w-5 h-5" />
+                  <span class="font-semibold">Budget Alerts</span>
+                </div>
+              </template>
+              <div class="flex items-center justify-between">
+                <p class="text-sm">Notify when approaching budget limits</p>
+                <UToggle v-model="settings.budgetAlerts" />
+              </div>
+              <template #footer>
+                <p class="text-xs text-muted">Get alerts when spending reaches 80% of your budget</p>
+              </template>
+            </UCard>
+
+            <UCard>
+              <template #header>
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-lucide-calendar" class="w-5 h-5" />
+                  <span class="font-semibold">Billing Reminders</span>
+                </div>
+              </template>
+              <div class="flex items-center justify-between">
+                <p class="text-sm">Remind about upcoming payments</p>
+                <UToggle v-model="settings.billingReminders" />
+              </div>
+              <template #footer>
+                <p class="text-xs text-muted">Get notified 3 days before subscription renewals and debt payments</p>
+              </template>
+            </UCard>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 pt-4 border-t">
+          <UButton @click="saveSettings" color="primary" icon="i-lucide-save">
+            Save Settings
+          </UButton>
+          <UButton @click="resetSettings" variant="outline" icon="i-lucide-rotate-ccw">
+            Reset to Default
+          </UButton>
+        </div>
+
+        <!-- Info Section -->
+        <UCard class="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <template #header>
+            <div class="flex items-center gap-2">
+              <UIcon name="i-lucide-info" class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <span class="font-semibold text-blue-600 dark:text-blue-400">About This Dashboard</span>
+            </div>
+          </template>
+          <p class="text-sm text-blue-700 dark:text-blue-300">
+            This is a frontend-only personal finance dashboard. All data is stored locally in your browser during this session. 
+            In a future update, you'll be able to connect to your bank accounts and sync data to the cloud for persistent storage.
+          </p>
+        </UCard>
+      </div>
+    </template>
+  </UDashboardPanel>
 </template>

@@ -6,26 +6,26 @@ import type { Period, Range } from '~/types'
 const { isNotificationsSlideoverOpen } = useDashboard()
 
 const items = [[{
-  label: 'New mail',
-  icon: 'i-lucide-send',
-  to: '/inbox'
+  label: 'Add Account',
+  icon: 'i-lucide-plus-circle',
+  to: '/accounts'
 }, {
-  label: 'New customer',
-  icon: 'i-lucide-user-plus',
-  to: '/customers'
+  label: 'View Transactions',
+  icon: 'i-lucide-list',
+  to: '/accounts'
 }]] satisfies DropdownMenuItem[][]
 
 const range = shallowRef<Range>({
   start: sub(new Date(), { days: 14 }),
   end: new Date()
 })
-const period = ref<Period>('daily')
+const period = ref<Period>('monthly')
 </script>
 
 <template>
   <UDashboardPanel id="home">
     <template #header>
-      <UDashboardNavbar title="Home" :ui="{ right: 'gap-3' }">
+      <UDashboardNavbar title="Dashboard" :ui="{ right: 'gap-3' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -49,21 +49,22 @@ const period = ref<Period>('daily')
           </UDropdownMenu>
         </template>
       </UDashboardNavbar>
-
-      <UDashboardToolbar>
-        <template #left>
-          <!-- NOTE: The `-ms-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
-          <HomeDateRangePicker v-model="range" class="-ms-1" />
-
-          <HomePeriodSelect v-model="period" :range="range" />
-        </template>
-      </UDashboardToolbar>
     </template>
 
     <template #body>
-      <HomeStats :period="period" :range="range" />
-      <HomeChart :period="period" :range="range" />
-      <HomeSales :period="period" :range="range" />
+      <!-- Net Worth - Primary Focus -->
+      <div class="space-y-8 pb-8">
+        <!-- Main Net Worth Card -->
+        <div class="grid grid-cols-1 gap-8">
+          <NetWorthCard />
+        </div>
+
+        <!-- Accounts Overview -->
+        <AccountsOverview />
+
+        <!-- Spending Chart -->
+        <HomeChart :period="period" :range="range" />
+      </div>
     </template>
   </UDashboardPanel>
 </template>

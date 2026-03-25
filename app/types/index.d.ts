@@ -58,3 +58,57 @@ export interface Range {
   start: Date
   end: Date
 }
+
+// Finance Types
+export type AccountType = 'checking' | 'savings' | 'credit_card' | 'investment'
+export type DebtType = 'credit_card' | 'loan' | 'mortgage' | 'student_loan'
+export type TransactionCategory = 'groceries' | 'dining' | 'transportation' | 'utilities' | 'entertainment' | 'shopping' | 'healthcare' | 'other'
+export type SubscriptionStatus = 'active' | 'paused' | 'cancelled'
+
+export interface Account {
+  id: string
+  name: string
+  type: AccountType
+  balance: number
+  currency: string
+  lastUpdated: Date
+  icon?: string
+}
+
+export interface Transaction {
+  id: string
+  accountId: string
+  description: string
+  amount: number
+  category: TransactionCategory
+  date: Date
+  isIncome: boolean
+}
+
+export interface Debt {
+  id: string
+  name: string
+  type: DebtType
+  balance: number
+  interestRate: number
+  dueDate?: Date
+  minimumPayment?: number
+  icon?: string
+}
+
+export interface Subscription {
+  id: string
+  name: string
+  amount: number
+  renewalDate: Date
+  status: SubscriptionStatus
+  category: TransactionCategory
+  frequency: 'monthly' | 'yearly'
+}
+
+export interface FinancialSnapshot {
+  totalAssets: number
+  totalLiabilities: number
+  netWorth: number
+  lastUpdated: Date
+}

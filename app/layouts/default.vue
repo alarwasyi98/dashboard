@@ -7,65 +7,48 @@ const toast = useToast()
 const open = ref(false)
 
 const links = [[{
-  label: 'Home',
-  icon: 'i-lucide-house',
+  label: 'Dashboard',
+  icon: 'i-lucide-layout-grid',
   to: '/',
   onSelect: () => {
     open.value = false
   }
 }, {
-  label: 'Inbox',
-  icon: 'i-lucide-inbox',
-  to: '/inbox',
-  badge: '4',
+  label: 'Accounts',
+  icon: 'i-lucide-wallet',
+  to: '/accounts',
   onSelect: () => {
     open.value = false
   }
 }, {
-  label: 'Customers',
-  icon: 'i-lucide-users',
-  to: '/customers',
+  label: 'Transactions',
+  icon: 'i-lucide-list',
+  to: '/transactions',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Liabilities',
+  icon: 'i-lucide-credit-card',
+  to: '/liabilities',
+  onSelect: () => {
+    open.value = false
+  }
+}, {
+  label: 'Analytics',
+  icon: 'i-lucide-chart-bar-stacked',
+  to: '/analytics',
   onSelect: () => {
     open.value = false
   }
 }, {
   label: 'Settings',
-  to: '/settings',
   icon: 'i-lucide-settings',
-  defaultOpen: true,
-  type: 'trigger',
-  children: [{
-    label: 'General',
-    to: '/settings',
-    exact: true,
-    onSelect: () => {
-      open.value = false
-    }
-  }, {
-    label: 'Members',
-    to: '/settings/members',
-    onSelect: () => {
-      open.value = false
-    }
-  }, {
-    label: 'Notifications',
-    to: '/settings/notifications',
-    onSelect: () => {
-      open.value = false
-    }
-  }, {
-    label: 'Security',
-    to: '/settings/security',
-    onSelect: () => {
-      open.value = false
-    }
-  }]
+  to: '/settings',
+  onSelect: () => {
+    open.value = false
+  }
 }], [{
-  label: 'Feedback',
-  icon: 'i-lucide-message-circle',
-  to: 'https://github.com/nuxt-ui-templates/dashboard',
-  target: '_blank'
-}, {
   label: 'Help & Support',
   icon: 'i-lucide-info',
   to: 'https://github.com/nuxt-ui-templates/dashboard',
